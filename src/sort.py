@@ -7,6 +7,8 @@ for i in range(1, len(arr)):
     j = i - 1
 
     while j >= 0:
+        print("comparing {} and {}".format(arr[j], a_i))
+
         if arr[j] > a_i:
             arr[j + 1] = arr[j]
         else:

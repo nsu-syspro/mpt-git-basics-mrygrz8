@@ -6,8 +6,11 @@
 
 ## Подготовка
 
-Репозиторий данного задания в GitHub Classroom является [fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/about-forks)'ом (копией)
-некоторого *upstream* репозитория [nsu-syspro/mpt-git-basics](https://github.com/nsu-syspro/mpt-git-basics).
+Репозиторий данного задания в GitHub Classroom был сгенерирован на основе
+*upstream* репозитория [nsu-syspro/mpt-git-basics](https://github.com/nsu-syspro/mpt-git-basics).
+При генерации история этого репозитория была "сжата" в единственный коммит,
+поэтому ветки с заданиями, которые есть в *upstream* репозитории, изначально
+в нем отсутствуют и их нужно опубликовать самостоятельно.
 
 Помимо основной ветки [main](../../tree/main) в данном репозитории должны присутствовать и другие ветки,
 образующие следующую иерархию:
@@ -28,7 +31,7 @@ $ git log --oneline --graph --glob='*greeter' --glob='*sorting'
 
 > [!IMPORTANT]
 > Проверьте, что иерархия интересующих нас веток в данном репозитории соответствует ожидаемой, выполнив приведенную выше команду.
-> 
+>
 > Если же иерархия веток отличается или их нет, обратитесь за помощью к преподавателю или попробуйте синхронизовать
 > все ветки из *upstream* репозитория самостоятельно с помощью инструкций ниже.
 
@@ -45,6 +48,7 @@ $ git log --oneline --graph --glob='*greeter' --glob='*sorting'
    remote: Total 25 (delta 5), reused 21 (delta 1), pack-reused 0
    Unpacking objects: 100% (25/25), 2.26 KiB | 289.00 KiB/s, done.
    From github.com:nsu-syspro/mpt-git-basics
+    * [new branch]      base             -> upstream/base
     * [new branch]      entrance-greeter -> upstream/entrance-greeter
     * [new branch]      exit-greeter     -> upstream/exit-greeter
     * [new branch]      faster-sorting   -> upstream/faster-sorting
@@ -57,6 +61,7 @@ $ git log --oneline --graph --glob='*greeter' --glob='*sorting'
    $ git branch --remotes
      origin/HEAD -> origin/main
      origin/main
+     upstream/base
      upstream/entrance-greeter
      upstream/exit-greeter
      upstream/faster-sorting
@@ -64,11 +69,12 @@ $ git log --oneline --graph --glob='*greeter' --glob='*sorting'
      upstream/main
      upstream/sorting
    ```
-1. Затем нужно опубликовать все ветки из `upstream` в `origin`:
+1. Затем нужно опубликовать все ветки с заданиями из `upstream` в `origin`:
    ```console
    $ git push origin "refs/remotes/upstream/*:refs/heads/*"
    Total 0 (delta 0), reused 0 (delta 0), pack-reused 0 (from 0)
    To github.com:nsu-syspro/mpt-git-basics-<your-github-username>.git
+    * [new branch]      upstream/base -> base
     * [new branch]      upstream/entrance-greeter -> entrance-greeter
     * [new branch]      upstream/exit-greeter -> exit-greeter
     * [new branch]      upstream/faster-sorting -> faster-sorting
@@ -90,12 +96,14 @@ $ git log --oneline --graph --glob='*greeter' --glob='*sorting'
    ```console
    $ git branch --remote
      origin/HEAD -> origin/main
+     origin/base
      origin/entrance-greeter
      origin/exit-greeter
      origin/faster-sorting
      origin/greeter
      origin/main
      origin/sorting
+     upstream/base
      upstream/entrance-greeter
      upstream/exit-greeter
      upstream/faster-sorting
@@ -103,14 +111,43 @@ $ git log --oneline --graph --glob='*greeter' --glob='*sorting'
      upstream/main
      upstream/sorting
    ```
+1. Так как история ветки `main` при генерации была "сжата" в единственный коммит,
+   она никак не связана с историей только что опубликованных веток.
+   Чтобы Git позволил в дальнейшем сливать эти ветки с `main`, нужно один раз
+   объединить их истории, влив коммит `Initial commit` (на который указывает ветка `base`)
+   в `main`:
+   ```console
+   $ git switch main
+   Already on 'main'
+   Your branch is up to date with 'origin/main'.
+   $ git merge --allow-unrelated-histories -X ours origin/base -m "Merge base into main"
+   Auto-merging README.md
+   Merge made by the 'ort' strategy.
+   ```
+   > Обычно Git отказывается сливать ветки без общей истории коммитов:
+   > ```console
+   > $ git merge origin/base
+   > fatal: refusing to merge unrelated histories
+   > ```
+   > Но в данной ситуации это возможно благодаря следующим опциям:
+   > - `--allow-unrelated-histories` разрешает слияние двух не связанных историй.
+   > - `-X ours` говорит о том, что при конфликтах следует предпочитать версию текущей ветки `main`.
+
+   И опубликовать полученный коммит слияния:
+   ```console
+   $ git push
+   Total 0 (delta 0), reused 0 (delta 0), pack-reused 0 (from 0)
+   To github.com:nsu-syspro/mpt-git-basics-<your-github-username>.git
+      0d7d53c..48928b8  main -> main
+   ```
 1. Далее рекомендуется удалить `upstream` *remote* из локального репозитория,
    чтобы не мешался в дальнейшем (оригинальный репозиторий на GitHub останется без изменений):
    ```console
    $ git remote remove upstream
    ```
 
-   > При работе с несколькими *remote* репозиториями, могут возникнуть сложности
-   > при переключении веток:
+   > При работе с несколькими *remote* репозиториями (если вы все же решили
+   > не удалять `upstream`), могут возникнуть сложности при переключении веток:
    > ```console
    > $ git switch greeter
    > hint: If you meant to check out a remote tracking branch on, e.g. 'origin',
@@ -136,7 +173,7 @@ $ git log --oneline --graph --glob='*greeter' --glob='*sorting'
 
 ## Задание №1 (3 балла)
 
-В текущем репозитории на подготовительном шаге были добавлены ветка `greeter`
+В текущем репозитории на подготовительном шаге была опубликована ветка `greeter`
 и растущие из нее ответвления `entrance-greeter` и `exit-greeter`, содержащие
 различающиеся реализации `HelloWorld` программы на языке Си.
 
@@ -277,7 +314,7 @@ gitGraph:
 
 ## Задание №2 (3 балла)
 
-В текущем репозитории на подготовительном шаге были добавлены ветка `sorting` и
+В текущем репозитории на подготовительном шаге была опубликована ветка `sorting` и
 ее ответвление `faster-sorting`, содержащие различные реализации сортировки на
 языке Python.
 
@@ -310,8 +347,8 @@ gitGraph:
    было добавлено логирование каждого сравнения элементов
    ```console
    $ git switch sorting
-   Switched to branch 'sorting'
-   Your branch is up to date with 'origin/sorting'.
+   branch 'sorting' set up to track 'origin/sorting'.
+   Switched to a new branch 'sorting'
    ```
 1. Влить ветку `faster-sorting`, где был реализован другой (возможно, более быстрый)
    алгоритм сортировки, в ветку `sorting`
@@ -400,35 +437,47 @@ gitGraph:
       5262815..8c69217  main -> main
    ```
    > Если проверки на GitHub не прошли (например, потому что конфликты неправильно разрешили),
-   > то рекомендуется провести процесс слияния и разрешения конфликтов заново.
-   > Для этого нужно установить ветки `main` и `sorting` в исходное положение до слияния и публикации:
+   > то нужно отменить неудачное слияние и повторить его заново после исправления.
+   > Проще всего отменить слияние с помощью команды `git revert` (отката назад через
+   > `git reset --hard` и *форсированную* публикацию лучше избегать):
    > ```console
-   > $ git switch main
-   > Already on 'main'
-   > Your branch is up to date with 'origin/main'.
-   > $ git reset --hard HEAD~1
-   > HEAD is now at 23bff0f Merge branch 'greeter'
-   > $ git push --force-with-lease
-   > Total 0 (delta 0), reused 0 (delta 0), pack-reused 0 (from 0)
-   > To github.com:nsu-syspro/mpt-git-basics-<your-github-username>.git
-   >  + bdacfe8...23bff0f main -> main (forced update)
+   > $ git revert -m 1 HEAD
+   > [main c44706a] Revert "Merge remote-tracking branch 'origin/faster-sorting' into sorting"
+   >  1 file changed, 10 deletions(-)
+   >  delete mode 100644 src/sort.py
+   > $ git push
+   > ```
+   > Опция `-m 1` нужна, потому что отменяется именно коммит слияния: она указывает,
+   > что при отмене следует оставить версию *первого* родителя коммита слияния (то есть `main`).
+   > После этого нужно исправить содержимое ветки `sorting` (пересоздать коммит слияния
+   > с правильным разрешением конфликтов, как в начале этого задания), опубликовать ее,
+   > и снова влить в `main`:
+   > ```console
    > $ git switch sorting
    > Switched to branch 'sorting'
    > Your branch is up to date with 'origin/sorting'.
-   > $ git reset --hard HEAD~1
-   > HEAD is now at e7a8f53 Use better sorting algorithm
+   > $ git reset --hard origin/sorting~1
+   > HEAD is now at f96816b Make sorting more verbose
    > $ git push --force-with-lease
-   > Total 0 (delta 0), reused 0 (delta 0), pack-reused 0 (from 0)
    > To github.com:nsu-syspro/mpt-git-basics-<your-github-username>.git
-   >  + 40766ce...e7a8f53 sorting-rebased -> sorting-rebased (forced update)
+   >  + 93a0c84...f96816b sorting -> sorting (forced update)
+   > $ git merge --no-ff origin/faster-sorting
+   > ...
+   > $ git push
+   > $ git switch main
+   > Already on 'main'
+   > Your branch is up to date with 'origin/main'.
+   > $ git merge sorting
+   > ...
+   > $ git push
    > ```
-   > И затем повторить слияние веток.
    >
    > **Осторожно**  
    > Опция `--force-with-lease` *форсирует* переписывание истории на публичном
-   > сервере, что является *чрезвычайно опасным* действием, особенно, если
-   > с репозиторием работают другие люди кроме вас, которые могли базироваться
-   > на ветке, историю которой вы изменяете.
+   > сервере. Для побочных веток задания (`sorting`, `sorting-rebased`) это безопасно
+   > и необходимо, но **никогда** не стоит так переписывать историю ветки `main`:
+   > по ней работает автоматическая система оценивания, и перемещение `main` назад
+   > может привести к тому, что решение просто не будет проверено.
 
 </details>
 
@@ -513,7 +562,7 @@ gitGraph:
    ```
 1. Установить ветку на `faster-sorting`
    ```console
-   $ git reset --hard faster-sorting
+   $ git reset --hard origin/faster-sorting
    HEAD is now at e7a8f53 Use better sorting algorithm
    ```
    > Иерархия на данном этапе должна быть примерно такая:
@@ -693,11 +742,12 @@ gitGraph:
    To github.com:nsu-syspro/mpt-git-basics-<your-github-username>.git
     + 9a7a3a9...05547ee sorting-rebased -> sorting-rebased (forced update)
    ```
-   > **Осторожно**  
+   > **Осторожно**
    > Опция `--force-with-lease` *форсирует* переписывание истории на публичном
-   > сервере, что является *чрезвычайно опасным* действием, особенно, если
-   > с репозиторием работают другие люди кроме вас, которые могли базироваться
-   > на ветке, историю которой вы изменяете.
+   > сервере. Для побочных веток задания (`sorting`, `sorting-rebased`) это безопасно
+   > и необходимо, но **никогда** не стоит так переписывать историю ветки `main`:
+   > по ней работает автоматическая система оценивания, и перемещение `main` назад
+   > может привести к тому, что решение просто не будет проверено.
 1. Остается только влить изменения в ветку `main` и опубликовать ее (чтобы
    автоматическая система оценивания засчитала баллы за задание)
    ```console
@@ -715,29 +765,32 @@ gitGraph:
       8c69217..55b856c  main -> main
    ```
    > Если проверки на GitHub не прошли (например, потому что конфликты неправильно разрешили),
-   > то рекомендуется провести процесс перебазирования и разрешения конфликтов заново.
-   > Для этого нужно установить ветки `main` и `sorting-rebased` в исходное положение до перебазирования и публикации:
+   > то нужно отменить неудачное слияние в `main` с помощью команды `git revert`:
    > ```console
-   > $ git switch main
-   > Already on 'main'
-   > Your branch is up to date with 'origin/main'.
-   > $ git reset --hard HEAD~1
-   > HEAD is now at 5c975f3 Merge branch 'sorting'
-   > $ git push --force-with-lease
-   > Total 0 (delta 0), reused 0 (delta 0), pack-reused 0 (from 0)
-   > To github.com:nsu-syspro/mpt-git-basics-<your-github-username>.git
-   >  + bdacfe8...5c975f3 main -> main (forced update)
+   > $ git revert -m 1 HEAD
+   > [main bd674f0] Revert "Merge branch 'sorting-rebased'"
+   >  1 file changed, 11 insertions(+), 7 deletions(-)
+   > $ git push
+   > ```
+   > Опция `-m 1` указывает, что при отмене коммита слияния следует оставить версию
+   > *первого* родителя (то есть `main`). После этого нужно исправить ветку
+   > `sorting-rebased` (перебазировать и переставить коммиты заново, как в начале
+   > этого задания), опубликовать ее с `--force-with-lease`, и снова влить в `main`:
+   > ```console
    > $ git switch sorting-rebased
    > Switched to branch 'sorting-rebased'
    > Your branch is up to date with 'origin/sorting-rebased'.
    > $ git reset --hard origin/faster-sorting
-   > HEAD is now at 69079b4 Implement base sorting
+   > HEAD is now at e7a8f53 Use better sorting algorithm
    > $ git push --force-with-lease
-   > Total 0 (delta 0), reused 0 (delta 0), pack-reused 0 (from 0)
    > To github.com:nsu-syspro/mpt-git-basics-<your-github-username>.git
-   >  + 40766ce...69079b4 sorting -> sorting (forced update)
+   >  + 05547ee...e7a8f53 sorting-rebased -> sorting-rebased (forced update)
    > ```
-   > И затем повторить перебазирование.
+   > и затем повторить перебазирование, публикацию и слияние в `main`.
+   >
+   > Обратите внимание: саму ветку `sorting-rebased` при этом спокойно можно
+   > переписывать через `--force-with-lease`, а вот историю `main` двигать назад
+   > не нужно: отмена слияния через `git revert` публикуется обычным `git push`.
 
 </details>
 
@@ -764,6 +817,7 @@ gitGraph:
    merge exit-greeter
 
    checkout main
+   branch base
 
    branch sorting
    commit id: "Implement base sorting"
@@ -780,6 +834,7 @@ gitGraph:
    merge faster-sorting
 
    checkout main
+   merge base type: HIGHLIGHT
    merge greeter type: HIGHLIGHT
    merge sorting type: HIGHLIGHT
    merge sorting-rebased type: HIGHLIGHT
